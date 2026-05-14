@@ -1,0 +1,97 @@
+[gd_scene load_steps=7 format=3 uid="uid://bio3djchmv1sx"]
+
+[ext_resource type="SpriteFrames" uid="uid://cbvw0u63i1ik7" path="res://goblin/animations/goblin_idle.tres" id="1_dl46o"]
+[ext_resource type="Script" uid="uid://cmi35uso01xe5" path="res://goblin/movement.gd" id="1_u6mjv"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_u6mjv"]
+
+[sub_resource type="Animation" id="Animation_macxp"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("held_item:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = false
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.43633232, -1.5707964, 0.43633232)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("held_item:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = false
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(-0.3, 0, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_u6mjv"]
+resource_name = "whack"
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("held_item:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = false
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.23333333, 0.62, 0.63, 1),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector3(-0.3, 0, 0), Vector3(-0.35805583, 0.8240843, -0.20092249), Vector3(-0.35805583, 0.8240843, -0.20092249), Vector3(-0.35652804, 0.80239785, -0.052495345), Vector3(-0.3, 0, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("held_item:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = false
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.23333333, 0.62, 0.63, 1),
+"transitions": PackedFloat32Array(1, 1, 1, 0.5, 1),
+"update": 0,
+"values": [Vector3(0.43633232, -1.5707964, 0.43633232), Vector3(0.297615, -1.2468368, 1.2892694), Vector3(0.19324423, -1.9228448, -0.65344507), Vector3(0.19896753, -1.6859881, -0.62482786), Vector3(0.43633232, -1.5707964, 0.43633232)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_vu5tg"]
+_data = {
+&"RESET": SubResource("Animation_macxp"),
+&"whack": SubResource("Animation_u6mjv")
+}
+
+[node name="Goblin" type="StaticBody3D"]
+collision_layer = 4
+script = ExtResource("1_u6mjv")
+
+[node name="Sprite3D" type="AnimatedSprite3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.038832426, 0)
+centered = false
+offset = Vector2(-64, -8)
+billboard = 1
+shaded = true
+sprite_frames = ExtResource("1_dl46o")
+animation = &"run_right"
+autoplay = "idle"
+frame_progress = 0.4232981
+
+[node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.5558288, 0.6819984, 0, -0.5183188, 0.7313537, 0, 0.69, -0.19927955)
+shape = SubResource("CapsuleShape3D_u6mjv")
+
+[node name="held_item" type="Node3D" parent="."]
+transform = Transform3D(-0.17860624, -0.3830222, -0.90630776, 0.38302222, 0.8213937, -0.42261827, 0.90630776, -0.4226183, -3.961597e-08, -0.3, 0, 0)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_vu5tg")
+}
+autoplay = "whack"

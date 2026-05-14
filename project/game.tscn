@@ -1,0 +1,43 @@
+[gd_scene load_steps=8 format=3 uid="uid://dd3doqyldmbcm"]
+
+[ext_resource type="PackedScene" uid="uid://c7y0rdpojplf8" path="res://map/GridMap.tscn" id="1_e2o6t"]
+[ext_resource type="PackedScene" uid="uid://bio3djchmv1sx" path="res://goblin/goblin.tscn" id="2_feb5d"]
+[ext_resource type="Script" uid="uid://bblmyi4qialw0" path="res://mouse/mouse.gd" id="3_feb5d"]
+[ext_resource type="PackedScene" uid="uid://b8jjev1g8jku5" path="res://items/pickaxe.tscn" id="4_fc0e3"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_7jktm"]
+sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+ground_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+
+[sub_resource type="Sky" id="Sky_ryrav"]
+sky_material = SubResource("ProceduralSkyMaterial_7jktm")
+
+[sub_resource type="Environment" id="Environment_eow3j"]
+background_mode = 2
+sky = SubResource("Sky_ryrav")
+tonemap_mode = 2
+glow_enabled = true
+
+[node name="Game" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_eow3j")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.34202015, 0.9396926, 0, -0.9396926, 0.34202015, 0, 10, 2.56)
+current = true
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+
+[node name="NavigationRegion3D" parent="." instance=ExtResource("1_e2o6t")]
+
+[node name="Goblin" parent="." node_paths=PackedStringArray("target") instance=ExtResource("2_feb5d")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.729373, 0.80296063, 0)
+target = NodePath("../target")
+
+[node name="target" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2662368, 0, 1.4752278)
+script = ExtResource("3_feb5d")
+
+[node name="pickaxe" parent="." instance=ExtResource("4_fc0e3")]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 2, 1, 1)
