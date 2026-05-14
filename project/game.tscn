@@ -1,6 +1,6 @@
 [gd_scene load_steps=8 format=3 uid="uid://dd3doqyldmbcm"]
 
-[ext_resource type="PackedScene" uid="uid://c7y0rdpojplf8" path="res://map/GridMap.tscn" id="1_e2o6t"]
+[ext_resource type="PackedScene" uid="uid://c7y0rdpojplf8" path="res://map/map.tscn" id="1_e2o6t"]
 [ext_resource type="PackedScene" uid="uid://bio3djchmv1sx" path="res://goblin/goblin.tscn" id="2_feb5d"]
 [ext_resource type="Script" uid="uid://bblmyi4qialw0" path="res://mouse/mouse.gd" id="3_feb5d"]
 [ext_resource type="PackedScene" uid="uid://b8jjev1g8jku5" path="res://items/pickaxe.tscn" id="4_fc0e3"]
@@ -29,7 +29,7 @@ current = true
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 
-[node name="NavigationRegion3D" parent="." instance=ExtResource("1_e2o6t")]
+[node name="Map" parent="." instance=ExtResource("1_e2o6t")]
 
 [node name="Goblin" parent="." node_paths=PackedStringArray("target") instance=ExtResource("2_feb5d")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.729373, 0.80296063, 0)
