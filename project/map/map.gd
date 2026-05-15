@@ -8,11 +8,17 @@ const CARDINAL_OFFSETS: Array = [
 # GridMap orthogonal-index values for the four 90-degree rotations around Y.
 const Y_ROTATIONS: Array = [0, 22, 10, 16]
 
+const LAYER_CELLS_BIT := 1 << 0
+const LAYER_ITEMS_BIT := 1 << 1
+
 @export var generation_seed: int = 0
 @export var ore_initial_density: float = 0.42
 @export var ore_ca_iterations: int = 4
 @export var ore_birth_threshold: int = 6
 @export var ore_survive_threshold: int = 4
+@export var rock_chips_per_hit: int = 1
+@export var rocks_per_break: int = 3
+@export var ore_nuggets_per_break: int = 3
 
 @onready var nav_region: NavigationRegion3D = $NavigationRegion3D
 @onready var grid_map: GridMap = $NavigationRegion3D/GridMap
@@ -25,6 +31,7 @@ var _ore_nodes: Dictionary = {}
 
 
 func _ready() -> void:
+	add_to_group(&"map")
 	if generation_seed != 0:
 		_rng.seed = generation_seed
 	else:
@@ -32,6 +39,34 @@ func _ready() -> void:
 	_resolve_meshlib_items()
 	_generate()
 	_rebake_nav()
+
+
+func cell_to_world(cell: Vector3i) -> Vector3:
+	return grid_map.to_global(grid_map.map_to_local(cell))
+
+
+func find_nearest_ore_cell(origin: Vector3, max_range: float) -> Variant:
+	var best: Variant = null
+	var best_d: float = max_range
+	for cell in _ore_nodes.keys():
+		var d := origin.distance_to(cell_to_world(cell))
+		if d < best_d:
+			best_d = d
+			best = cell
+	return best
+
+
+func find_nearest_plain_wall_cell(origin: Vector3, max_range: float) -> Variant:
+	var best: Variant = null
+	var best_d: float = max_range
+	for cell in _wall_health.keys():
+		if _ore_nodes.has(cell):
+			continue
+		var d := origin.distance_to(cell_to_world(cell))
+		if d < best_d:
+			best_d = d
+			best = cell
+	return best
 
 
 func _resolve_meshlib_items() -> void:
@@ -135,11 +170,99 @@ func _spawn_ore_at(cell: Vector3i) -> void:
 func damage_wall(cell: Vector3i, amount: int = 1) -> void:
 	if not _wall_health.has(cell):
 		return
+	var fly_dir := _compute_fly_direction(cell)
+	var had_ore := _ore_nodes.has(cell)
 	_wall_health[cell] -= amount
 	if _wall_health[cell] <= 0:
+		_eject_break_debris(cell, fly_dir, had_ore)
 		_destroy_wall(cell)
 	else:
+		_eject_hit_debris(cell, fly_dir)
 		_refresh_wall_visual(cell)
+
+
+func _compute_fly_direction(cell: Vector3i) -> Vector3:
+	var dir := Vector3.ZERO
+	for off in CARDINAL_OFFSETS:
+		var n: Vector3i = cell + off
+		if grid_map.get_cell_item(n) == _floor_id:
+			dir += Vector3(off.x, 0.0, off.z)
+	if dir.length_squared() < 0.0001:
+		var a := _rng.randf() * TAU
+		return Vector3(cos(a), 0.0, sin(a))
+	return dir.normalized()
+
+
+func _eject_hit_debris(cell: Vector3i, dir: Vector3) -> void:
+	for _i in rock_chips_per_hit:
+		_spawn_pebble(cell, dir, false)
+
+
+func _eject_break_debris(cell: Vector3i, dir: Vector3, had_ore: bool) -> void:
+	for _i in rocks_per_break:
+		_spawn_pebble(cell, dir, false)
+	if had_ore:
+		for _i in ore_nuggets_per_break:
+			_spawn_pebble(cell, dir, true)
+
+
+func _spawn_pebble(cell: Vector3i, dir: Vector3, is_ore: bool) -> void:
+	var radius := 0.13 if is_ore else 0.09
+	var body := RigidBody3D.new()
+	body.collision_layer = LAYER_ITEMS_BIT
+	body.collision_mask = LAYER_CELLS_BIT | LAYER_ITEMS_BIT
+	body.continuous_cd = true
+	body.linear_damp = 0.35
+	body.angular_damp = 0.25
+	body.mass = 0.4 if is_ore else 0.2
+	body.add_to_group(&"debris")
+
+	var pmat := PhysicsMaterial.new()
+	pmat.bounce = 0.55
+	pmat.friction = 0.75
+	body.physics_material_override = pmat
+
+	var mesh_node := MeshInstance3D.new()
+	var sphere_mesh := SphereMesh.new()
+	sphere_mesh.radius = radius
+	sphere_mesh.height = radius * 2.0
+	mesh_node.mesh = sphere_mesh
+	var mat := StandardMaterial3D.new()
+	if is_ore:
+		mat.albedo_color = Color(0.95, 0.75, 0.2)
+		mat.metallic = 0.85
+		mat.roughness = 0.25
+	else:
+		mat.albedo_color = Color(0.42, 0.4, 0.38)
+		mat.roughness = 0.95
+	mesh_node.material_override = mat
+	body.add_child(mesh_node)
+
+	var collider := CollisionShape3D.new()
+	var shape := SphereShape3D.new()
+	shape.radius = radius
+	collider.shape = shape
+	body.add_child(collider)
+
+	var origin := grid_map.map_to_local(cell) + dir * 0.55
+	body.position = origin + Vector3(
+		_rng.randf_range(-0.12, 0.12),
+		_rng.randf_range(0.05, 0.35),
+		_rng.randf_range(-0.12, 0.12),
+	)
+	grid_map.add_child(body)
+
+	var horiz_speed := _rng.randf_range(3.0, 5.5)
+	var up_speed := _rng.randf_range(2.8, 4.5)
+	var perp := Vector3(-dir.z, 0.0, dir.x)
+	var spread := _rng.randf_range(-0.6, 0.6)
+	var launch := (dir + perp * spread).normalized() * horiz_speed + Vector3.UP * up_speed
+	body.linear_velocity = launch
+	body.angular_velocity = Vector3(
+		_rng.randf_range(-14.0, 14.0),
+		_rng.randf_range(-14.0, 14.0),
+		_rng.randf_range(-14.0, 14.0),
+	)
 
 
 func _refresh_wall_visual(cell: Vector3i) -> void:

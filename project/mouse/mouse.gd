@@ -67,7 +67,7 @@ func _handle_drop(source: Node3D, source_layer: int, drop: Dictionary) -> void:
 	var target = drop.collider
 	match [source_layer, drop.layer]:
 		[LAYER_ITEMS, LAYER_CHARACTERS]:
-			var slot: Node3D = target.get_node_or_null("held_item")
+			var slot: Node3D = target.find_child("held_item", true, false) as Node3D
 			if slot == null:
 				push_warning("Character '%s' has no 'held_item' node" % target.name)
 				return

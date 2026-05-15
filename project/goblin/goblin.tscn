@@ -10,7 +10,7 @@ length = 0.001
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("held_item:rotation")
+tracks/0/path = NodePath("item_flipper/held_item:rotation")
 tracks/0/interp = 1
 tracks/0/loop_wrap = false
 tracks/0/keys = {
@@ -22,7 +22,7 @@ tracks/0/keys = {
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("held_item:position")
+tracks/1/path = NodePath("item_flipper/held_item:position")
 tracks/1/interp = 1
 tracks/1/loop_wrap = false
 tracks/1/keys = {
@@ -38,7 +38,7 @@ loop_mode = 1
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("held_item:position")
+tracks/0/path = NodePath("item_flipper/held_item:position")
 tracks/0/interp = 1
 tracks/0/loop_wrap = false
 tracks/0/keys = {
@@ -50,7 +50,7 @@ tracks/0/keys = {
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("held_item:rotation")
+tracks/1/path = NodePath("item_flipper/held_item:rotation")
 tracks/1/interp = 1
 tracks/1/loop_wrap = false
 tracks/1/keys = {
@@ -79,7 +79,7 @@ shaded = true
 sprite_frames = ExtResource("1_dl46o")
 animation = &"run_right"
 autoplay = "idle"
-frame_progress = 0.4232981
+frame_progress = 0.84028894
 
 [node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]
 
@@ -87,11 +87,13 @@ frame_progress = 0.4232981
 transform = Transform3D(1, 0, 0, 0, 0.5558288, 0.6819984, 0, -0.5183188, 0.7313537, 0, 0.69, -0.19927955)
 shape = SubResource("CapsuleShape3D_u6mjv")
 
-[node name="held_item" type="Node3D" parent="."]
+[node name="item_flipper" type="Node3D" parent="."]
+
+[node name="held_item" type="Node3D" parent="item_flipper"]
 transform = Transform3D(-0.17860624, -0.3830222, -0.90630776, 0.38302222, 0.8213937, -0.42261827, 0.90630776, -0.4226183, -3.961597e-08, -0.3, 0, 0)
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {
 &"": SubResource("AnimationLibrary_vu5tg")
 }
-autoplay = "whack"
+autoplay = "RESET"

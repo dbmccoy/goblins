@@ -1,9 +1,10 @@
-[gd_scene load_steps=8 format=3 uid="uid://dd3doqyldmbcm"]
+[gd_scene load_steps=9 format=3 uid="uid://dd3doqyldmbcm"]
 
 [ext_resource type="PackedScene" uid="uid://c7y0rdpojplf8" path="res://map/map.tscn" id="1_e2o6t"]
 [ext_resource type="PackedScene" uid="uid://bio3djchmv1sx" path="res://goblin/goblin.tscn" id="2_feb5d"]
 [ext_resource type="Script" uid="uid://bblmyi4qialw0" path="res://mouse/mouse.gd" id="3_feb5d"]
 [ext_resource type="PackedScene" uid="uid://b8jjev1g8jku5" path="res://items/pickaxe.tscn" id="4_fc0e3"]
+[ext_resource type="Script" path="res://items/coin_spawner.gd" id="5_coin"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_7jktm"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -41,3 +42,7 @@ script = ExtResource("3_feb5d")
 
 [node name="pickaxe" parent="." instance=ExtResource("4_fc0e3")]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 2, 1, 1)
+
+[node name="CoinSpawner" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8, 0)
+script = ExtResource("5_coin")

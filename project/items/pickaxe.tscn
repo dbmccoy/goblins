@@ -1,7 +1,8 @@
-[gd_scene load_steps=11 format=4 uid="uid://b8jjev1g8jku5"]
+[gd_scene load_steps=12 format=4 uid="uid://b8jjev1g8jku5"]
 
 [ext_resource type="Material" uid="uid://bhfw0sbtawdpu" path="res://materials/wood_handle.tres" id="2_fmpim"]
 [ext_resource type="Material" uid="uid://c8jdtsc1vrvqm" path="res://materials/metal.tres" id="3_viuqv"]
+[ext_resource type="Script" path="res://items/pickaxe.gd" id="4_smart"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ihfwp"]
 
@@ -100,3 +101,6 @@ skeleton = NodePath("")
 [node name="CollisionShape3D3" type="CollisionShape3D" parent="."]
 transform = Transform3D(0.12, 0, 0, 0, 0.2, 0, 0, 0, 0.15, 0, 0.75092524, 0)
 shape = SubResource("ConcavePolygonShape3D_viuqv")
+
+[node name="SmartObject" type="Node" parent="."]
+script = ExtResource("4_smart")
