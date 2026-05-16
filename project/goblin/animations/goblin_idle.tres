@@ -1,8 +1,9 @@
-[gd_resource type="SpriteFrames" load_steps=64 format=3 uid="uid://cbvw0u63i1ik7"]
+[gd_resource type="SpriteFrames" load_steps=75 format=3 uid="uid://cbvw0u63i1ik7"]
 
 [ext_resource type="Texture2D" uid="uid://cgpt6odvyeevl" path="res://goblin/spritesheets/goblin_idle.png" id="1_3if5v"]
 [ext_resource type="Texture2D" uid="uid://6c4exmug8yf7" path="res://goblin/spritesheets/goblin_run_left.png" id="2_alw11"]
 [ext_resource type="Texture2D" uid="uid://bleie7exjkn3v" path="res://goblin/spritesheets/goblin_run_right.png" id="3_mu8iw"]
+[ext_resource type="Texture2D" uid="uid://0lwhqy5e2bqa" path="res://goblin/spritesheets/goblin_held.png" id="4_alw11"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_3if5v"]
 atlas = ExtResource("1_3if5v")
@@ -244,6 +245,46 @@ region = Rect2(256, 0, 128, 128)
 atlas = ExtResource("3_mu8iw")
 region = Rect2(384, 0, 128, 128)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_6wl4s"]
+atlas = ExtResource("4_alw11")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cfnqn"]
+atlas = ExtResource("4_alw11")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yfyn2"]
+atlas = ExtResource("4_alw11")
+region = Rect2(256, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4iyhf"]
+atlas = ExtResource("4_alw11")
+region = Rect2(384, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8q88p"]
+atlas = ExtResource("4_alw11")
+region = Rect2(512, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mk40k"]
+atlas = ExtResource("4_alw11")
+region = Rect2(0, 128, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ufyhk"]
+atlas = ExtResource("4_alw11")
+region = Rect2(128, 128, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_863fg"]
+atlas = ExtResource("4_alw11")
+region = Rect2(256, 128, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vy2uo"]
+atlas = ExtResource("4_alw11")
+region = Rect2(384, 128, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_oqqr7"]
+atlas = ExtResource("4_alw11")
+region = Rect2(512, 128, 128, 128)
+
 [resource]
 animations = [{
 "frames": [{
@@ -440,4 +481,39 @@ animations = [{
 "loop": true,
 "name": &"run_right",
 "speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6wl4s")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_cfnqn")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_yfyn2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4iyhf")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8q88p")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mk40k")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ufyhk")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_863fg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vy2uo")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_oqqr7")
+}],
+"loop": true,
+"name": &"wiggle",
+"speed": 7.0
 }]

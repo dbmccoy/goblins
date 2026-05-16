@@ -11,6 +11,7 @@ extends Node3D
 @onready var sprite: AnimatedSprite3D = $Sprite3D
 @onready var item_flipper: Node3D = $item_flipper
 @onready var animation_player: AnimationPlayer = $AnimationPlayer
+@onready var shadow: MeshInstance3D = $shadow
 
 var movement_speed: float
 var movement_delta: float
@@ -20,6 +21,7 @@ var _facing_right: bool = false
 var _smart_target_active: bool = false
 var _smart_target: Vector3 = Vector3.ZERO
 var _attacking: bool = false
+var _held: bool = false
 
 func _ready() -> void:
 	add_to_group(&"goblins")
@@ -31,6 +33,8 @@ func _ready() -> void:
 	_apply_attacking()
 
 func _process(delta: float) -> void:
+	if _held:
+		return
 	if _smart_target_active:
 		set_movement_target(_smart_target)
 	elif target:
@@ -52,6 +56,16 @@ func clear_smart_target() -> void:
 	_smart_target_active = false
 	set_movement_target(global_position)
 
+func set_held(value: bool) -> void:
+	if _held == value:
+		return
+	_held = value
+	shadow.visible = _held
+	if _held:
+		_set_animation(&"wiggle")
+	else:
+		set_movement_target(global_position)
+
 func set_attacking(value: bool) -> void:
 	if _attacking == value:
 		return
@@ -65,6 +79,8 @@ func face_position(pos: Vector3) -> void:
 		_apply_facing()
 
 func _physics_process(delta: float) -> void:
+	if _held:
+		return
 	_movement_speed_timer -= delta
 	if _movement_speed_timer <= 0.0:
 		_randomize_movement_speed()

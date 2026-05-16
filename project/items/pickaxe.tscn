@@ -2,7 +2,7 @@
 
 [ext_resource type="Material" uid="uid://bhfw0sbtawdpu" path="res://materials/wood_handle.tres" id="2_fmpim"]
 [ext_resource type="Material" uid="uid://c8jdtsc1vrvqm" path="res://materials/metal.tres" id="3_viuqv"]
-[ext_resource type="Script" path="res://items/pickaxe.gd" id="4_smart"]
+[ext_resource type="Script" uid="uid://cr1applchfhj" path="res://items/pickaxe.gd" id="4_smart"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ihfwp"]
 

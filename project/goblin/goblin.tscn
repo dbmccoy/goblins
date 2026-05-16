@@ -1,7 +1,16 @@
-[gd_scene load_steps=7 format=3 uid="uid://bio3djchmv1sx"]
+[gd_scene load_steps=9 format=3 uid="uid://bio3djchmv1sx"]
 
 [ext_resource type="SpriteFrames" uid="uid://cbvw0u63i1ik7" path="res://goblin/animations/goblin_idle.tres" id="1_dl46o"]
 [ext_resource type="Script" uid="uid://cmi35uso01xe5" path="res://goblin/movement.gd" id="1_u6mjv"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_shadow"]
+transparency = 1
+shading_mode = 0
+albedo_color = Color(0, 0, 0, 0.45)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_shadow"]
+material = SubResource("StandardMaterial3D_shadow")
+size = Vector2(0.8, 0.8)
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_u6mjv"]
 
@@ -76,10 +85,13 @@ centered = false
 offset = Vector2(-64, -8)
 billboard = 1
 shaded = true
+no_depth_test = true
+alpha_cut = 1
+render_priority = 1
 sprite_frames = ExtResource("1_dl46o")
-animation = &"run_right"
+animation = &"wiggle"
 autoplay = "idle"
-frame_progress = 0.84028894
+frame_progress = 0.46414655
 
 [node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]
 
@@ -90,10 +102,16 @@ shape = SubResource("CapsuleShape3D_u6mjv")
 [node name="item_flipper" type="Node3D" parent="."]
 
 [node name="held_item" type="Node3D" parent="item_flipper"]
-transform = Transform3D(-0.17860624, -0.3830222, -0.90630776, 0.38302222, 0.8213937, -0.42261827, 0.90630776, -0.4226183, -3.961597e-08, -0.3, 0, 0)
+transform = Transform3D(-0.17860623, -0.38302216, -0.9063077, 0.3830222, 0.82139367, -0.42261824, 0.9063077, -0.42261827, -3.9615966e-08, -0.3, 0, 0)
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {
 &"": SubResource("AnimationLibrary_vu5tg")
 }
 autoplay = "RESET"
+
+[node name="shadow" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
+visible = false
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_shadow")

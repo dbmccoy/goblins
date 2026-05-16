@@ -1,5 +1,6 @@
 [gd_resource type="StandardMaterial3D" format=3 uid="uid://c8jdtsc1vrvqm"]
 
 [resource]
+render_priority = 2
 albedo_color = Color(0.27752772, 0.27752772, 0.27752772, 1)
 metallic = 0.27

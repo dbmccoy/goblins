@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3 uid="uid://cvq5g8umuhm3p"]
+
+[ext_resource type="SpriteFrames" uid="uid://c1bo34ivfbcxb" path="res://mouse/animations/mouse.tres" id="1_vbr1e"]
+[ext_resource type="Script" uid="uid://bblmyi4qialw0" path="res://mouse/mouse.gd" id="2_mouse"]
+
+[node name="Mouse" type="Node3D"]
+script = ExtResource("2_mouse")
+
+[node name="AnimatedSprite3D" type="AnimatedSprite3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.64, 0)
+visible = false
+billboard = 1
+sprite_frames = ExtResource("1_vbr1e")
+animation = &"idle"
+autoplay = "idle"

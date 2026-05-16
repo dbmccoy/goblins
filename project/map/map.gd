@@ -14,11 +14,12 @@ const LAYER_ITEMS_BIT := 1 << 1
 @export var generation_seed: int = 0
 @export var ore_initial_density: float = 0.42
 @export var ore_ca_iterations: int = 4
-@export var ore_birth_threshold: int = 6
+@export var ore_birth_threshold: int = 3
 @export var ore_survive_threshold: int = 4
 @export var rock_chips_per_hit: int = 1
 @export var rocks_per_break: int = 3
 @export var ore_nuggets_per_break: int = 3
+@export var debug_ore_visibility: bool = true
 
 @onready var nav_region: NavigationRegion3D = $NavigationRegion3D
 @onready var grid_map: GridMap = $NavigationRegion3D/GridMap
@@ -28,6 +29,7 @@ var _floor_id: int = -1
 var _wall_damage_ids: Array[int] = []
 var _wall_health: Dictionary = {}
 var _ore_nodes: Dictionary = {}
+var _ore_visible: Dictionary = {}
 
 
 func _ready() -> void:
@@ -69,6 +71,20 @@ func find_nearest_plain_wall_cell(origin: Vector3, max_range: float) -> Variant:
 	return best
 
 
+func find_approach_cell(wall_cell: Vector3i, origin: Vector3) -> Variant:
+	var best: Variant = null
+	var best_d: float = INF
+	for off in CARDINAL_OFFSETS:
+		var floor_cell: Vector3i = wall_cell + off
+		if grid_map.get_cell_item(floor_cell) != _floor_id:
+			continue
+		var d := origin.distance_to(cell_to_world(floor_cell))
+		if d < best_d:
+			best_d = d
+			best = floor_cell
+	return best
+
+
 func _resolve_meshlib_items() -> void:
 	var lib := grid_map.mesh_library
 	_floor_id = lib.find_item_by_name("floor_1")
@@ -90,6 +106,7 @@ func _generate() -> void:
 	for ore in _ore_nodes.values():
 		ore.queue_free()
 	_ore_nodes.clear()
+	_ore_visible.clear()
 
 	var floor_cells: Array[Vector3i] = []
 	for x in range(-CLEARING_RADIUS, CLEARING_RADIUS + 1):
@@ -147,24 +164,67 @@ func _seed_ores(wall_cells: Array[Vector3i]) -> void:
 					next_alive[c] = true
 		alive = next_alive
 
+	if alive.is_empty() and not wall_cells.is_empty():
+		alive[wall_cells[_rng.randi() % wall_cells.size()]] = true
+
 	for c in alive.keys():
 		_spawn_ore_at(c)
 
 
 func _spawn_ore_at(cell: Vector3i) -> void:
+	var parent := Node3D.new()
+	parent.position = grid_map.map_to_local(cell)
+	grid_map.add_child(parent)
+	_ore_nodes[cell] = parent
+	_populate_ore_nuggets(cell)
+
+
+func _populate_ore_nuggets(cell: Vector3i) -> void:
+	var parent: Node3D = _ore_nodes[cell]
+	for child in parent.get_children():
+		child.queue_free()
+
+	var exposed_faces: Array = []
+	for off in CARDINAL_OFFSETS:
+		if grid_map.get_cell_item(cell + off) == _floor_id:
+			exposed_faces.append(off)
+
+	var was_visible: bool = _ore_visible.get(cell, false)
+	var is_visible := not exposed_faces.is_empty()
+	_ore_visible[cell] = is_visible
+	if debug_ore_visibility and is_visible and not was_visible:
+		print("[map] gold wall exposed at %s (faces: %s)" % [cell, exposed_faces])
+
+	if exposed_faces.is_empty():
+		return
+
+	var nugget_count := _rng.randi_range(4, 5)
+	for i in nugget_count:
+		var face: Vector3i = exposed_faces[i % exposed_faces.size()]
+		_add_nugget(parent, face)
+
+
+func _add_nugget(parent: Node3D, face: Vector3i) -> void:
 	var node := MeshInstance3D.new()
 	var mesh := SphereMesh.new()
-	mesh.radius = 0.18
-	mesh.height = 0.36
+	var r := _rng.randf_range(0.15, 0.3)
+	mesh.radius = r
+	mesh.height = r * 2.0
 	node.mesh = mesh
 	var mat := StandardMaterial3D.new()
 	mat.albedo_color = Color(0.95, 0.75, 0.2)
-	mat.metallic = 0.7
+	mat.metallic = 0.8
 	mat.roughness = 0.3
 	node.material_override = mat
-	node.position = grid_map.map_to_local(cell)
-	grid_map.add_child(node)
-	_ore_nodes[cell] = node
+
+	var face_v := Vector3(face.x, 0.0, face.z)
+	var perp := Vector3(-face_v.z, 0.0, face_v.x)
+	node.position = (
+		face_v * _rng.randf_range(0.38, 0.48)
+		+ perp * _rng.randf_range(-0.32, 0.32)
+		+ Vector3.UP * _rng.randf_range(0.15, 0.75)
+	)
+	parent.add_child(node)
 
 
 func damage_wall(cell: Vector3i, amount: int = 1) -> void:
@@ -276,12 +336,17 @@ func _refresh_wall_visual(cell: Vector3i) -> void:
 func _destroy_wall(cell: Vector3i) -> void:
 	_place_floor(cell)
 	if _ore_nodes.has(cell):
+		if debug_ore_visibility and _ore_visible.get(cell, false):
+			print("[map] gold wall mined at %s" % [cell])
 		_ore_nodes[cell].queue_free()
 		_ore_nodes.erase(cell)
+		_ore_visible.erase(cell)
 	for off in CARDINAL_OFFSETS:
 		var n: Vector3i = cell + off
 		if grid_map.get_cell_item(n) == GridMap.INVALID_CELL_ITEM:
 			_place_wall(n)
+		elif _ore_nodes.has(n):
+			_populate_ore_nuggets(n)
 	_rebake_nav.call_deferred()
 
 

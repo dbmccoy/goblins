@@ -1,6 +1,6 @@
 extends SmartObject
 
-@export var attack_range: float = 1.6
+@export var attack_range: float = 1.8
 @export var detection_range: float = 32.0
 @export var swing_cooldown: float = 0.9
 @export var swing_damage: int = 1
@@ -49,16 +49,24 @@ func _tick() -> void:
 
 func _engage_cell(holder: Node3D, cell: Vector3i) -> void:
 	var target_pos: Vector3 = _map.cell_to_world(cell)
-	var dist := holder.global_position.distance_to(target_pos)
-	if dist <= attack_range:
+	var horizontal_dist := _horizontal_distance(holder.global_position, target_pos)
+	if horizontal_dist <= attack_range:
 		holder.clear_smart_target()
 		holder.face_position(target_pos)
 		holder.set_attacking(true)
 		if _try_swing():
 			_map.damage_wall(cell, swing_damage)
-	else:
-		holder.set_smart_target(target_pos)
-		holder.set_attacking(false)
+		return
+
+	var approach = _map.find_approach_cell(cell, holder.global_position)
+	var nav_pos: Vector3 = _map.cell_to_world(approach) if approach != null else target_pos
+	holder.set_smart_target(nav_pos)
+	holder.set_attacking(false)
+
+func _horizontal_distance(a: Vector3, b: Vector3) -> float:
+	var dx := b.x - a.x
+	var dz := b.z - a.z
+	return sqrt(dx * dx + dz * dz)
 
 func _try_swing() -> bool:
 	if _swing_timer > 0.0:
