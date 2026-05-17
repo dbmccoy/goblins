@@ -1,7 +1,7 @@
-[gd_scene load_steps=9 format=3 uid="uid://bio3djchmv1sx"]
+[gd_scene load_steps=9 format=3 uid="uid://dhp3r1qnkot1l"]
 
-[ext_resource type="SpriteFrames" uid="uid://cbvw0u63i1ik7" path="res://goblin/animations/goblin_anims.tres" id="1_dl46o"]
-[ext_resource type="Script" uid="uid://cmi35uso01xe5" path="res://goblin/movement.gd" id="1_u6mjv"]
+[ext_resource type="Script" uid="uid://bdeyoydijjf2r" path="res://slime/slime.gd" id="1_smcfs"]
+[ext_resource type="SpriteFrames" uid="uid://3djgenr0hogs" path="res://slime/animations/slime_anims.tres" id="2_ms0tw"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_u6mjv"]
 
@@ -75,9 +75,9 @@ albedo_color = Color(0, 0, 0, 0.45)
 material = SubResource("StandardMaterial3D_shadow")
 size = Vector2(0.8, 0.8)
 
-[node name="Goblin" type="StaticBody3D"]
+[node name="Slime" type="StaticBody3D"]
 collision_layer = 4
-script = ExtResource("1_u6mjv")
+script = ExtResource("1_smcfs")
 
 [node name="Sprite3D" type="AnimatedSprite3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.038832426, 0)
@@ -88,21 +88,20 @@ shaded = true
 no_depth_test = true
 alpha_cut = 1
 render_priority = 1
-sprite_frames = ExtResource("1_dl46o")
-animation = &"wiggle"
+sprite_frames = ExtResource("2_ms0tw")
+animation = &"idle"
 autoplay = "idle"
-frame_progress = 0.78240025
 
 [node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.5558288, 0.6819984, 0, -0.5183188, 0.7313537, 0, 0.69, -0.19927955)
+transform = Transform3D(1, 0, 0, 0, 0.49, 0, 0, 0, 1, 0, 0.45, -0.24)
 shape = SubResource("CapsuleShape3D_u6mjv")
 
 [node name="item_flipper" type="Node3D" parent="."]
 
 [node name="held_item" type="Node3D" parent="item_flipper"]
-transform = Transform3D(-0.17860623, -0.3830221, -0.9063077, 0.3830222, 0.82139355, -0.42261824, 0.9063077, -0.4226182, -3.9615966e-08, -0.3, 0, 0)
+transform = Transform3D(-0.17860623, -0.38302204, -0.9063077, 0.3830222, 0.82139343, -0.42261824, 0.9063077, -0.42261815, -3.9615966e-08, -0.3, 0, 0)
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {

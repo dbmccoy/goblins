@@ -5,6 +5,8 @@ extends Node3D
 @export var animation_speed_jitter: float = 0.6
 @export var movement_speed_change_interval: float = 0.35
 @export var animation_speed_change_interval: float = 0.18
+@export var max_hp: int = 3
+@export var hurt_sound: AudioStream
 @export var target: Node3D
 
 @onready var navigation_agent: NavigationAgent3D = $NavigationAgent3D
@@ -22,18 +24,37 @@ var _smart_target_active: bool = false
 var _smart_target: Vector3 = Vector3.ZERO
 var _attacking: bool = false
 var _held: bool = false
+var _thrown: bool = false
+var _hp: int = 3
+var _dead: bool = false
 
 func _ready() -> void:
 	add_to_group(&"goblins")
 	navigation_agent.velocity_computed.connect(_on_velocity_computed)
 	movement_speed = base_movement_speed
+	_hp = max_hp
 	_randomize_animation_speed()
 	_randomize_movement_speed()
 	_apply_facing()
 	_apply_attacking()
 
+
+func take_damage(amount: int = 1) -> void:
+	if _dead or amount <= 0:
+		return
+	_hp -= amount
+	Damage.flash(sprite)
+	Damage.play_sound(self, hurt_sound)
+	if _hp <= 0:
+		_die()
+
+
+func _die() -> void:
+	_dead = true
+	queue_free()
+
 func _process(delta: float) -> void:
-	if _held:
+	if _held or _thrown:
 		return
 	if _smart_target_active:
 		set_movement_target(_smart_target)
@@ -66,6 +87,45 @@ func set_held(value: bool) -> void:
 	else:
 		set_movement_target(global_position)
 
+func throw(world_vel: Vector3) -> void:
+	set_held(false)
+	_thrown = true
+	_set_animation(&"fall")
+
+	var horiz: Vector3 = Vector3(world_vel.x, 0.0, world_vel.z)
+	var speed: float = horiz.length()
+	var direction: Vector3 = horiz.normalized() if speed > 0.01 else Vector3(randf_range(-1.0, 1.0), 0.0, randf_range(-1.0, 1.0)).normalized()
+	var land_dist: float = clampf(speed * 0.35, 1.0, 10.0)
+	var arc_height: float = clampf(speed * 0.12, 0.5, 3.0)
+	var duration: float = clampf(speed * 0.04, 0.3, 0.9)
+
+	var from: Vector3 = global_position
+	var raw_land: Vector3 = Vector3(from.x + direction.x * land_dist, 0.0, from.z + direction.z * land_dist)
+	var map_node: Node = get_tree().get_first_node_in_group(&"map")
+	var land: Vector3
+	if map_node != null:
+		land = map_node.clamp_to_floor(raw_land)
+	else:
+		land = raw_land
+	land.y = 0.0
+
+	var tween: Tween = create_tween()
+	tween.tween_method(func(t: float) -> void:
+		global_position = Vector3(
+			lerpf(from.x, land.x, t),
+			lerpf(from.y, 0.0, t) + arc_height * 4.0 * t * (1.0 - t),
+			lerpf(from.z, land.z, t)
+		)
+	, 0.0, 1.0, duration)
+	tween.tween_callback(func() -> void:
+		_thrown = false
+		global_position = land
+		set_movement_target(global_position)
+	)
+
+func play_anim(anim: StringName) -> void:
+	_set_animation(anim)
+
 func set_attacking(value: bool) -> void:
 	if _attacking == value:
 		return
@@ -79,7 +139,7 @@ func face_position(pos: Vector3) -> void:
 		_apply_facing()
 
 func _physics_process(delta: float) -> void:
-	if _held:
+	if _held or _thrown:
 		return
 	_movement_speed_timer -= delta
 	if _movement_speed_timer <= 0.0:
@@ -121,8 +181,11 @@ func _apply_attacking() -> void:
 		animation_player.play(&"RESET")
 
 func _set_animation(anim: StringName) -> void:
-	if sprite.animation != anim:
-		sprite.animation = anim
+	if sprite.animation == anim:
+		return
+	if not sprite.sprite_frames.has_animation(anim):
+		return
+	sprite.play(anim)
 
 func _randomize_animation_speed() -> void:
 	sprite.speed_scale = randf_range(1.0 - animation_speed_jitter, 1.0 + animation_speed_jitter)

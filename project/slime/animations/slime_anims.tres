@@ -1,0 +1,72 @@
+[gd_resource type="SpriteFrames" load_steps=10 format=3 uid="uid://3djgenr0hogs"]
+
+[ext_resource type="Texture2D" uid="uid://c04mdq2bcgl4u" path="res://slime/spritesheets/slime_bounce.png" id="1_60h71"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5tepk"]
+atlas = ExtResource("1_60h71")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_g3qf3"]
+atlas = ExtResource("1_60h71")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3asds"]
+atlas = ExtResource("1_60h71")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jauvu"]
+atlas = ExtResource("1_60h71")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_q1cej"]
+atlas = ExtResource("1_60h71")
+region = Rect2(256, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4hyn2"]
+atlas = ExtResource("1_60h71")
+region = Rect2(384, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_eyx7y"]
+atlas = ExtResource("1_60h71")
+region = Rect2(512, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_whl4s"]
+atlas = ExtResource("1_60h71")
+region = Rect2(640, 0, 128, 128)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5tepk")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_g3qf3")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3asds")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jauvu")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_q1cej")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4hyn2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_eyx7y")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_whl4s")
+}],
+"loop": true,
+"name": &"jump",
+"speed": 6.0
+}]

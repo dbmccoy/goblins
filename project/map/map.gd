@@ -1,5 +1,7 @@
 extends Node3D
 
+const SLIME_SCENE: PackedScene = preload("res://slime/slime.tscn")
+
 const CLEARING_RADIUS := 4
 const CARDINAL_OFFSETS: Array = [
 	Vector3i(1, 0, 0), Vector3i(-1, 0, 0),
@@ -19,6 +21,7 @@ const LAYER_ITEMS_BIT := 1 << 1
 @export var rock_chips_per_hit: int = 1
 @export var rocks_per_break: int = 3
 @export var ore_nuggets_per_break: int = 3
+@export var slime_wall_density: float = 0.1
 @export var debug_ore_visibility: bool = true
 
 @onready var nav_region: NavigationRegion3D = $NavigationRegion3D
@@ -30,6 +33,7 @@ var _wall_damage_ids: Array[int] = []
 var _wall_health: Dictionary = {}
 var _ore_nodes: Dictionary = {}
 var _ore_visible: Dictionary = {}
+var _slime_walls: Dictionary = {}
 
 
 func _ready() -> void:
@@ -45,6 +49,30 @@ func _ready() -> void:
 
 func cell_to_world(cell: Vector3i) -> Vector3:
 	return grid_map.to_global(grid_map.map_to_local(cell))
+
+
+func clamp_to_floor(world_pos: Vector3) -> Vector3:
+	var cell := grid_map.local_to_map(grid_map.to_local(Vector3(world_pos.x, 0.0, world_pos.z)))
+	cell.y = 0
+	if grid_map.get_cell_item(cell) == _floor_id:
+		return world_pos
+	var best_cell := Vector3i(0, 0, 0)
+	var best_dsq := INF
+	for r in range(1, 20):
+		for dx in range(-r, r + 1):
+			for dz in range(-r, r + 1):
+				if abs(dx) < r and abs(dz) < r:
+					continue
+				var c := Vector3i(cell.x + dx, 0, cell.z + dz)
+				if grid_map.get_cell_item(c) == _floor_id:
+					var dsq := float(dx * dx + dz * dz)
+					if dsq < best_dsq:
+						best_dsq = dsq
+						best_cell = c
+		if best_dsq < INF:
+			var clamped := cell_to_world(best_cell)
+			return Vector3(clamped.x, world_pos.y, clamped.z)
+	return world_pos
 
 
 func find_nearest_ore_cell(origin: Vector3, max_range: float) -> Variant:
@@ -107,6 +135,7 @@ func _generate() -> void:
 		ore.queue_free()
 	_ore_nodes.clear()
 	_ore_visible.clear()
+	_slime_walls.clear()
 
 	var floor_cells: Array[Vector3i] = []
 	for x in range(-CLEARING_RADIUS, CLEARING_RADIUS + 1):
@@ -124,6 +153,15 @@ func _generate() -> void:
 				wall_cells.append(n)
 
 	_seed_ores(wall_cells)
+	_seed_slime_walls(wall_cells)
+
+
+func _seed_slime_walls(wall_cells: Array[Vector3i]) -> void:
+	for c in wall_cells:
+		if _ore_nodes.has(c):
+			continue
+		if _rng.randf() < slime_wall_density:
+			_slime_walls[c] = true
 
 
 func _place_floor(cell: Vector3i) -> void:
@@ -341,6 +379,8 @@ func _destroy_wall(cell: Vector3i) -> void:
 		_ore_nodes[cell].queue_free()
 		_ore_nodes.erase(cell)
 		_ore_visible.erase(cell)
+	var spawn_slime: bool = _slime_walls.has(cell)
+	_slime_walls.erase(cell)
 	for off in CARDINAL_OFFSETS:
 		var n: Vector3i = cell + off
 		if grid_map.get_cell_item(n) == GridMap.INVALID_CELL_ITEM:
@@ -348,6 +388,14 @@ func _destroy_wall(cell: Vector3i) -> void:
 		elif _ore_nodes.has(n):
 			_populate_ore_nuggets(n)
 	_rebake_nav.call_deferred()
+	if spawn_slime:
+		_spawn_slime(cell)
+
+
+func _spawn_slime(cell: Vector3i) -> void:
+	var slime: Node3D = SLIME_SCENE.instantiate()
+	slime.position = grid_map.map_to_local(cell)
+	grid_map.add_child(slime)
 
 
 func _rebake_nav() -> void:
